@@ -1,4 +1,4 @@
 SharpMapTracker
 ===============
 
-SharpMapTracker
+MapTracker for Tibia
