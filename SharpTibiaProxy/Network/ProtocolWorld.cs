@@ -376,6 +376,9 @@ namespace SharpTibiaProxy.Network
                         case 0x9F:
                             ParseServerBasicData(message);
                             break;
+                        case 0x9E:
+                            ParseServerPremiumTrigger(message);
+                            break;
                         case 0xDC:
                             ParseServerShowTutorial(message);
                             break;
@@ -604,6 +607,14 @@ namespace SharpTibiaProxy.Network
             var knowSpells = message.ReadUShort();
 
             message.ReadBytes(knowSpells);
+        }
+
+        private void ParseServerPremiumTrigger(InMessage message)
+        {
+            byte count = message.ReadByte(); //premium messages count
+            for (int i = 0; i < count; i++)
+            message.ReadByte(); //premium message id
+            message.ReadByte(); //trigger notification (boolean)
         }
 
         private void ParseServerAddMapMarker(InMessage message)
@@ -836,12 +847,12 @@ namespace SharpTibiaProxy.Network
 
             switch (type)
             {
-                case MessageClasses.SPEAK_SAY:
-                case MessageClasses.SPEAK_WHISPER:
-                case MessageClasses.SPEAK_YELL:
-                case MessageClasses.SPEAK_MONSTER_SAY:
-                case MessageClasses.SPEAK_MONSTER_YELL:
-                case MessageClasses.SPEAK_SPELL:
+                case MessageClasses.TALKTYPE_SAY:
+                case MessageClasses.TALKTYPE_WHISPER:
+                case MessageClasses.TALKTYPE_YELL:
+                case MessageClasses.TALKTYPE_MONSTER_SAY:
+                case MessageClasses.TALKTYPE_MONSTER_YELL:
+                case MessageClasses.TALKTYPE_SPELL:
                 case MessageClasses.NPC_FROM:
                     location = message.ReadLocation();
                     break;
@@ -1499,7 +1510,7 @@ namespace SharpTibiaProxy.Network
             //get thing type
             var thingId = message.ReadUShort();
 
-            if (thingId == 0x0061 || thingId == 0x0062)
+            if (thingId == 0x0061 || thingId == 0x0062 || thingId == 0x0063)
             {
                 //creatures
                 Creature creature = null;
@@ -1563,6 +1574,17 @@ namespace SharpTibiaProxy.Network
                 Creature creature = client.BattleList.GetCreature(message.ReadUInt());
                 if (creature == null)
                     throw new Exception("[GetThing] (0x0063)  Can't find the creature in the battle list.");
+
+                creature.TurnDirection = (Direction)message.ReadByte();
+                creature.IsImpassable = message.ReadBool();
+
+                return creature;
+            }
+            else if (thingId == 0x0064)
+            {
+                Creature creature = client.BattleList.GetCreature(message.ReadUInt());
+                if (creature == null)
+                    throw new Exception("[GetThing] (0x0064)  Can't find the creature in the battle list.");
 
                 creature.TurnDirection = (Direction)message.ReadByte();
                 creature.IsImpassable = message.ReadBool();

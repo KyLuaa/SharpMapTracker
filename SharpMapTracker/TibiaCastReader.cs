@@ -42,7 +42,7 @@ namespace SharpMapTracker
         UInt32 test1;
 
         byte currentMajorVersion = 4;
-        byte currentMinorVersion = 22;
+        byte currentMinorVersion = 23;
 
         public TibiaCastReader(Client client)
         {
