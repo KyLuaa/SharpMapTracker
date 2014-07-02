@@ -42,7 +42,6 @@ namespace SharpMapTracker
         UInt32 test1;
 
         byte currentMajorVersion = 4;
-        byte currentMinorVersion = 23;
 
         public TibiaCastReader(Client client)
         {
@@ -78,7 +77,16 @@ namespace SharpMapTracker
                         majorVersion = reader.ReadByte();
                         minorVersion = reader.ReadByte();
 
-                        if(majorVersion != currentMajorVersion || (majorVersion == currentMajorVersion && minorVersion != currentMinorVersion))
+                        if (minorVersion == 21)
+                            client.Version = ClientVersion.Version1036;
+                        else if (minorVersion == 22)
+                            client.Version = ClientVersion.Version1038;
+                        else if (minorVersion == 23)
+                            client.Version = ClientVersion.Version1038;
+                        else if (minorVersion == 24)
+                            client.Version = ClientVersion.Version1041;
+
+                        if(majorVersion != currentMajorVersion)
                         {
                             Trace.WriteLine("[Error] (" + Path.GetFileName(fileName) + ") Unsupported TibiaCast Version " + majorVersion + "." + minorVersion);
                             break;
@@ -167,7 +175,7 @@ namespace SharpMapTracker
             {
                 var creature = new Creature(message.ReadUInt());
                 creature.Type = (CreatureType)message.ReadByte();
-                creature.Name = message.ReadString();                
+                creature.Name = message.ReadString();
 
                 //Trace.WriteLine(String.Format("Creature[{0}]: {1}", i, creature.Name));
 
@@ -185,12 +193,16 @@ namespace SharpMapTracker
                 creature.Shield = message.ReadByte();
                 creature.Emblem = message.ReadByte();
                 creature.IsImpassable = message.ReadByte() == 0x01;
-                
-                //10.38+ includes an extra 5 bytes per creature
+
+                //10.20+ includes an extra 4 bytes per creature
                 //These bytes could alter the read order, but since I don't know what they are for yet, I'll read them out of the way.
-                message.ReadBytes(5);
+                message.ReadUInt();
+
+                //speech category?
+                if (client.Version.Number >= ClientVersion.Version1036.Number)
+                    message.ReadByte();
+
                 client.BattleList.AddCreature(creature);
-                
             }
 
             ParseTibiaPackets(message);

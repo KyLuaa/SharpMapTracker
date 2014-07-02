@@ -23,9 +23,12 @@ namespace SharpTibiaProxy.Domain
         public static readonly ClientVersion Version1033 = new ClientVersion { Number = 1033, FileVersion = "10.3.3.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 50 };
         public static readonly ClientVersion Version1034 = new ClientVersion { Number = 1034, FileVersion = "10.3.4.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 50 };
         public static readonly ClientVersion Version1035 = new ClientVersion { Number = 1035, FileVersion = "10.3.5.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 50 };
+        public static readonly ClientVersion Version1036 = new ClientVersion { Number = 1036, FileVersion = "10.3.6.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 50 };
+        public static readonly ClientVersion Version1037 = new ClientVersion { Number = 1037, FileVersion = "10.3.7.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 50 };
         public static readonly ClientVersion Version1038 = new ClientVersion { Number = 1038, FileVersion = "10.3.8.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 50 };
         public static readonly ClientVersion Version1039 = new ClientVersion { Number = 1039, FileVersion = "10.3.9.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 50 };
-        public static readonly ClientVersion Current = Version1039;
+        public static readonly ClientVersion Version1041 = new ClientVersion { Number = 1041, FileVersion = "10.4.1.0", OtbmVersion = 2, OtbMajorVersion = 3, OtbMinorVersion = 55 };
+        public static readonly ClientVersion Current = Version1036;
 
         public int Number { get; private set; }
         public string FileVersion { get; private set; }
@@ -55,8 +58,11 @@ namespace SharpTibiaProxy.Domain
                 case "10.3.3.0": return Version1033;
                 case "10.3.4.0": return Version1034;
                 case "10.3.5.0": return Version1035;
+                case "10.3.6.0": return Version1036;
+                case "10.3.7.0": return Version1037;
                 case "10.3.8.0": return Version1038;
                 case "10.3.9.0": return Version1039;
+                case "10.4.1.0": return Version1041;
                 default: return null;
             }
         }
