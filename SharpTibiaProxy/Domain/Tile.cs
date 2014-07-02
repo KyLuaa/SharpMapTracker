@@ -16,7 +16,7 @@ namespace SharpTibiaProxy.Domain
         public Location Location { get; private set; }
         public int ThingCount { get { return things.Count; } }
 
-        private List<Thing> things;
+        public List<Thing> things { get; private set; }
 
         public Tile(Location location)
         {

@@ -300,11 +300,11 @@ namespace SharpMapTracker
                         sendNpcWordScheduleId = client.Scheduler.Add(new Schedule(200, () => { SendNextNPCWord(npcInfo); }));
                     }
                 }
-                else if (e.Type == MessageClasses.TALKTYPE_SAY)
+                else if (e.Type == MessageClasses.SPEAK_SAY)
                 {
                     npcInfo.AddVoice(e.Text, false);
                 }
-                else if (e.Type == MessageClasses.TALKTYPE_YELL)
+                else if (e.Type == MessageClasses.SPEAK_YELL)
                 {
                     npcInfo.AddVoice(e.Text, true);
                 }

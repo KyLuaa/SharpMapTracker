@@ -40,7 +40,7 @@ namespace SharpTibiaProxy.Domain
             if (text.Length > 255)
                 throw new Exception("Value can't have more then 255 characters.");
 
-            client.ProtocolWorld.SendServerSay(text, MessageClasses.TALKTYPE_SAY);
+            client.ProtocolWorld.SendServerSay(text, MessageClasses.SPEAK_SAY);
         }
 
         public void SayToNpc(string text)

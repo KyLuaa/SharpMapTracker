@@ -113,7 +113,7 @@ namespace SharpTibiaProxy.Domain
             Scheduler.Start();
 
             Items = new Items();
-            Items.Load(datFilename);
+            Items.Load(datFilename, this.Version.Number);
 
             Map = new Map(this);
             BattleList = new BattleList(this);

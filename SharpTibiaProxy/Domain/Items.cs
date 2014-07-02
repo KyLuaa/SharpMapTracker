@@ -26,7 +26,7 @@ namespace SharpTibiaProxy.Domain
             return null;
         }
 
-        public bool Load(string filename)
+        public bool Load(string filename, int version)
         {
             FileStream fileStream = File.OpenRead(filename);
             try
@@ -214,6 +214,18 @@ namespace SharpTibiaProxy.Domain
                         var zdiv = reader.ReadByte();
                         var animationLength = reader.ReadByte();
                         item.IsAnimation = animationLength > 1;
+
+                        if (item.IsAnimation && version > ClientVersion.Version1041.Number)
+                        {
+                            reader.ReadByte();
+                            reader.ReadUInt32();
+                            reader.ReadByte();
+                            for (int i = 0; i < animationLength; i++)
+                            {
+                                reader.ReadUInt32();
+                                reader.ReadUInt32();
+                            }
+                        }
 
                         var numSprites =
                             (UInt32)width * (UInt32)height *

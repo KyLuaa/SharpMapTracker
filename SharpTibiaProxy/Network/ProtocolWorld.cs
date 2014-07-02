@@ -286,6 +286,9 @@ namespace SharpTibiaProxy.Network
                         case 0x97:
                             ParseServerHouseTextWindow(message);
                             break;
+                        case 0x9E:
+                            ParseServerPremiumTrigger(message);
+                            break;
                         case 0xA0:
                             ParseServerPlayerStats(message);
                             break;
@@ -376,9 +379,6 @@ namespace SharpTibiaProxy.Network
                         case 0x9F:
                             ParseServerBasicData(message);
                             break;
-                        case 0x9E:
-                            ParseServerPremiumTrigger(message);
-                            break;
                         case 0xDC:
                             ParseServerShowTutorial(message);
                             break;
@@ -401,7 +401,7 @@ namespace SharpTibiaProxy.Network
                             ParseServerMarketBrowser(message);
                             break;
                         default:
-                            throw new Exception("ProtocolWorld [ParseServerMessage]: Unkonw packet type " + cmd.ToString("X2"));
+                            throw new Exception("ProtocolWorld [ParseServerMessage]: Unknown packet type " + cmd.ToString("X2"));
                     }
                 }
 
@@ -418,6 +418,14 @@ namespace SharpTibiaProxy.Network
             var loc2 = message.ReadByte();
             var loc3 = message.ReadUInt();
             return (loc3 - int.MaxValue) / Math.Pow(10, loc2);
+        }
+
+        private void ParseServerPremiumTrigger(InMessage message)
+        {
+            var count = message.ReadByte();
+            for (int i = 0; i < count; i++)
+                message.ReadByte();
+            var notification = message.ReadByte();
         }
 
         private void ParseServerCreaturePVPHelpers(InMessage message)
@@ -602,19 +610,13 @@ namespace SharpTibiaProxy.Network
         private void ParseServerBasicData(InMessage message)
         {
             var isPremmium = message.ReadByte();
+            if (client.Version.Number >= ClientVersion.Version1038.Number)
+                message.ReadUInt(); //PremiumTime
             var vocation = message.ReadByte();
 
             var knowSpells = message.ReadUShort();
 
             message.ReadBytes(knowSpells);
-        }
-
-        private void ParseServerPremiumTrigger(InMessage message)
-        {
-            byte count = message.ReadByte(); //premium messages count
-            for (int i = 0; i < count; i++)
-            message.ReadByte(); //premium message id
-            message.ReadByte(); //trigger notification (boolean)
         }
 
         private void ParseServerAddMapMarker(InMessage message)
@@ -847,13 +849,13 @@ namespace SharpTibiaProxy.Network
 
             switch (type)
             {
-                case MessageClasses.TALKTYPE_SAY:
-                case MessageClasses.TALKTYPE_WHISPER:
-                case MessageClasses.TALKTYPE_YELL:
-                case MessageClasses.TALKTYPE_MONSTER_SAY:
-                case MessageClasses.TALKTYPE_MONSTER_YELL:
-                case MessageClasses.TALKTYPE_SPELL:
-                case MessageClasses.NPC_FROM:
+                case MessageClasses.SPEAK_SAY:
+                case MessageClasses.SPEAK_WHISPER:
+                case MessageClasses.SPEAK_YELL:
+                case MessageClasses.SPEAK_MONSTER_SAY:
+                case MessageClasses.SPEAK_MONSTER_YELL:
+                case MessageClasses.SPEAK_SPELL:
+                case MessageClasses.NPC_FROM_START_BLOCK:
                     location = message.ReadLocation();
                     break;
                 case MessageClasses.CHANNEL:
@@ -1510,7 +1512,7 @@ namespace SharpTibiaProxy.Network
             //get thing type
             var thingId = message.ReadUShort();
 
-            if (thingId == 0x0061 || thingId == 0x0062 || thingId == 0x0063)
+            if (thingId == 0x0061 || thingId == 0x0062)
             {
                 //creatures
                 Creature creature = null;
@@ -1552,7 +1554,7 @@ namespace SharpTibiaProxy.Network
                     {
                         creature.Emblem = message.ReadByte();
                     }
-                    else if (client.Version.Number >= ClientVersion.Version1010.Number)
+                    if (client.Version.Number >= ClientVersion.Version1010.Number)
                     {
                         var GuildFlag = message.ReadByte();
                     }
@@ -1561,6 +1563,8 @@ namespace SharpTibiaProxy.Network
                 if (client.Version.Number >= ClientVersion.Version1010.Number)
                 {
                     creature.Type = (CreatureType)message.ReadByte();
+                    if (client.Version.Number >= ClientVersion.Version1036.Number)
+                        message.ReadByte(); //Speech Category
                     var Mark = message.ReadByte();
                     var NumberOfPVPHelpers = message.ReadUShort();
                 }
@@ -1574,17 +1578,6 @@ namespace SharpTibiaProxy.Network
                 Creature creature = client.BattleList.GetCreature(message.ReadUInt());
                 if (creature == null)
                     throw new Exception("[GetThing] (0x0063)  Can't find the creature in the battle list.");
-
-                creature.TurnDirection = (Direction)message.ReadByte();
-                creature.IsImpassable = message.ReadBool();
-
-                return creature;
-            }
-            else if (thingId == 0x0064)
-            {
-                Creature creature = client.BattleList.GetCreature(message.ReadUInt());
-                if (creature == null)
-                    throw new Exception("[GetThing] (0x0064)  Can't find the creature in the battle list.");
 
                 creature.TurnDirection = (Direction)message.ReadByte();
                 creature.IsImpassable = message.ReadBool();
@@ -1631,6 +1624,7 @@ namespace SharpTibiaProxy.Network
             message.ReadUShort();
             client.PlayerCanReportBugs = message.ReadByte() != 0;
         }
+
         #endregion
 
         #region SendServer
